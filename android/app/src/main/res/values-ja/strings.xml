@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wolf Among Us ライブ壁紙</string>
+    <string name="wallpaper_description">『The Wolf Among Us』（リマスター版）の花柄背景のライブ再現</string>
+    <string name="settings_title">Wolf Among Us ライブ壁紙</string>
+    <string name="pref_scene">シーン</string>
+    <string name="pref_tone">色調</string>
+    <string name="pref_speed">再生速度</string>
+    <string name="pref_fps">フレームレート</string>
+    <string name="scene_title">タイトル画面</string>
+    <string name="scene_menu">メインメニュー</string>
+    <string name="tone_original">オリジナル</string>
+    <string name="tone_bright">明るめ（明るさ 2×）</string>
+    <string name="tone_light">ライト（白／明るいグレー）</string>
+    <string name="speed_pause">一時停止</string>
+    <string name="speed_normal">1×（等速）</string>
+    <string name="fps_15">15 fps（省電力）</string>
+    <string name="fps_30">30 fps</string>
+    <string name="fps_60">60 fps</string>
+</resources>

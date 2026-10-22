@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wolf Among Us 动态壁纸</string>
+    <string name="wallpaper_description">《The Wolf Among Us》（重制版）花卉背景的动态复现</string>
+    <string name="settings_title">Wolf Among Us 动态壁纸</string>
+    <string name="pref_scene">场景</string>
+    <string name="pref_tone">色调</string>
+    <string name="pref_speed">播放速度</string>
+    <string name="pref_fps">帧率</string>
+    <string name="scene_title">标题界面</string>
+    <string name="scene_menu">主菜单</string>
+    <string name="tone_original">原版</string>
+    <string name="tone_bright">提亮（亮度 2×）</string>
+    <string name="tone_light">浅色（白/亮灰底）</string>
+    <string name="speed_pause">暂停</string>
+    <string name="speed_normal">1×（原速）</string>
+    <string name="fps_15">15 帧（省电）</string>
+    <string name="fps_30">30 帧</string>
+    <string name="fps_60">60 帧</string>
+</resources>

@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Wolf Among Us Live Wallpaper</string>
+    <string name="wallpaper_description">Live recreation of the flower-pattern background from The Wolf Among Us (Remastered)</string>
+    <string name="settings_title">Wolf Among Us Live Wallpaper</string>
+    <string name="pref_scene">Scene</string>
+    <string name="pref_tone">Tone</string>
+    <string name="pref_speed">Playback speed</string>
+    <string name="pref_fps">Frame rate</string>
+    <string name="scene_title">Title screen</string>
+    <string name="scene_menu">Main menu</string>
+    <string name="tone_original">Original</string>
+    <string name="tone_bright">Brightened (2× brightness)</string>
+    <string name="tone_light">Light (white / light gray)</string>
+    <string name="speed_pause">Paused</string>
+    <string name="speed_normal">1× (original)</string>
+    <string name="fps_15">15 fps (saves battery)</string>
+    <string name="fps_30">30 fps</string>
+    <string name="fps_60">60 fps</string>
+</resources>

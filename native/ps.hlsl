@@ -60,12 +60,13 @@ float4 main(float4 pos : SV_Position) : SV_Target
         }
         // 渐变：游戏里是自下而上 1→0 的加色光；这里是同样位置、同样衰减的白色柔光
         float2 gv2 = (float2(w.x / uSpot.z, (w.y - uGeo.w) / uSpot.w) + 10.0) / 20.0;
-        if (inside(gv2)) c = q8(lerp(c, 1.0, 0.62 * saturate(1.0 - gv2.y)));
+        if (gv2.y <= 1.0) c = q8(lerp(c, 1.0, 0.62 * saturate(1.0 - gv2.y)));   // 同上：向下、左右延续
         return float4(c, 1.0);
     }
 
-    // 层 0 fill：19.2x10.8，缩放 uGeo.x（标题 2 / 主菜单 1），纯色 × 亮度倍率
-    if (inside((w / uGeo.x - float2(-9.6, -5.4)) / float2(19.2, 10.8))) c = q8(uCFill.rgb * uBr.x);
+    // 层 0 fill：纯色 × 亮度倍率。游戏里它是 19.2x10.8（乘缩放 uGeo.x：标题 2 / 主菜单 1）的矩形，正好盖住 16:9 的屏幕；
+    // 竖屏 / 超宽屏会超出矩形，这里让它铺满整个屏幕（16:9 下结果相同）
+    c = q8(uCFill.rgb * uBr.x);
     // 层 1 back：黑色，常量透明度 0.5，UV 缩放 6
     c = wallLayer(c, w, cs, sn, 6.0, 0.0, 0.5, 0.0);
     // 层 2 far：UV 缩放 uGeo.y（标题 3 / 主菜单 3.5）
@@ -85,8 +86,9 @@ float4 main(float4 pos : SV_Position) : SV_Target
 
     // 层 5 gradient：20x20 网格，缩放 uSpot.zw（标题 (2,1) / 主菜单 (1,0.4)），位置 y=uGeo.w；
     //   顶点 alpha 自下而上 1→0；混合 SrcAlpha, One
+    //   游戏里网格的下缘和左右缘在 16:9 屏幕之外；竖屏 / 超宽屏放大后会露出来，所以向下和左右延续（alpha 保持 1），16:9 下结果相同
     float2 gv = (float2(w.x / uSpot.z, (w.y - uGeo.w) / uSpot.w) + 10.0) / 20.0;
-    if (inside(gv)) c = q8(c + uCGrad.rgb * uBr.w * saturate(1.0 - gv.y));
+    if (gv.y <= 1.0) c = q8(c + uCGrad.rgb * uBr.w * saturate(1.0 - gv.y));
 
     return float4(c, 1.0);
 }

@@ -13,6 +13,13 @@ spot.png
 tools/.cache/
 tools/.cache/
 
+# Android 构建产物
+android/.gradle/
+android/build/
+android/app/build/
+android/local.properties
+*.apk
+
 # 构建产物
 native/build/
 *.obj

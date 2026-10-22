@@ -309,6 +309,11 @@ static void drawTo(ID3D11RenderTargetView* rtv, UINT w, UINT h, const Params& p)
     cb.res[0] = (float)w; cb.res[1] = (float)h;
     cb.ext[0] = aspect >= 1 ? HALF_H * aspect : HALF_H;   // 竖屏：短边对应引擎的垂直范围
     cb.ext[1] = aspect >= 1 ? HALF_H : HALF_H / aspect;
+    // 花卉层是 23.04 见方的网格并绕原点旋转，只有半径 11.52 的圆内一定被覆盖。16:9 的半对角线是 11.0，游戏里不会露边；
+    // 竖屏 / 超宽屏更长，四角会露出底色，所以超出时整体放大（缩小可见的世界范围）直到铺满。16:9 不受影响。
+    const float MAX_RADIUS = 11.4f;
+    float diag = std::sqrt(cb.ext[0] * cb.ext[0] + cb.ext[1] * cb.ext[1]);
+    if (diag > MAX_RADIUS) { float k = MAX_RADIUS / diag; cb.ext[0] *= k; cb.ext[1] *= k; }
     cb.ang = p.ang; cb.farT = p.farT; cb.nearT = p.nearT;
     for (int i = 0; i < 3; i++) { cb.cFill[i] = p.cF[i]; cb.cFar[i] = p.cFar[i]; cb.cNear[i] = p.cNear[i]; cb.cGrad[i] = p.cG[i]; }
     for (int i = 0; i < 4; i++) cb.br[i] = p.br[i];

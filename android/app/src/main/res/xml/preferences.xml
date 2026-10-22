@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <ListPreference
+        android:key="scene"
+        android:title="@string/pref_scene"
+        android:entries="@array/scene_entries"
+        android:entryValues="@array/scene_values"
+        android:defaultValue="title"
+        android:summary="%s" />
+    <ListPreference
+        android:key="tone"
+        android:title="@string/pref_tone"
+        android:entries="@array/tone_entries"
+        android:entryValues="@array/tone_values"
+        android:defaultValue="original"
+        android:summary="%s" />
+    <ListPreference
+        android:key="speed"
+        android:title="@string/pref_speed"
+        android:entries="@array/speed_entries"
+        android:entryValues="@array/speed_values"
+        android:defaultValue="1"
+        android:summary="%s" />
+    <ListPreference
+        android:key="fps"
+        android:title="@string/pref_fps"
+        android:entries="@array/fps_entries"
+        android:entryValues="@array/fps_values"
+        android:defaultValue="30"
+        android:summary="%s" />
+</PreferenceScreen>

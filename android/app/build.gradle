@@ -1,0 +1,63 @@
+plugins {
+    id 'com.android.application'
+}
+
+// 配置读取自项目根目录的 .env（系统环境变量优先），与 native/build.ps1 共用同一份配置；相对路径按项目根目录解析
+def projectRoot = rootProject.projectDir.parentFile
+def dotenv = [:]
+def envFile = new File(projectRoot, '.env')
+if (envFile.exists()) {
+    envFile.eachLine('UTF-8') { raw ->
+        def l = raw.trim()
+        def i = l.indexOf('=')
+        if (l && !l.startsWith('#') && i > 0) {
+            dotenv[l.substring(0, i).trim()] = l.substring(i + 1).trim().replaceAll(/^["']|["']$/, '')
+        }
+    }
+}
+def cfg = { String key, String fallback -> System.getenv(key) ?: (dotenv[key] ?: fallback) }
+def resolvePath = { String p -> new File(p).isAbsolute() ? new File(p) : new File(projectRoot, p) }
+
+def assetsDir = resolvePath(cfg('WOLF_ASSETS_DIR', 'assets'))
+def textureOut = new File(buildDir, 'generated/wolf-assets')
+
+// 只把两张贴图（与 exe 用同一份 wall.bc3 / spot.bc1）放进 APK 的 assets，图标等其它文件不带。
+// 在配置阶段同步，这样 AGP 的所有任务（合并 assets、lint 等）都能直接看到这个目录。
+textureOut.mkdirs()
+['wall.bc3', 'spot.bc1'].each { name ->
+    def src = new File(assetsDir, name)
+    if (src.exists()) {
+        java.nio.file.Files.copy(src.toPath(), new File(textureOut, name).toPath(), java.nio.file.StandardCopyOption.REPLACE_EXISTING)
+    } else if (gradle.startParameter.taskNames.any { it.toLowerCase().contains('assemble') || it.toLowerCase().contains('bundle') }) {
+        throw new GradleException("缺少 ${src}，请先运行 tools/prepare-assets.ps1 生成贴图。")
+    }
+}
+
+android {
+    namespace 'com.zaiyii.wolves'
+    compileSdk 35
+
+    defaultConfig {
+        applicationId 'com.zaiyii.wolves'
+        minSdk 24
+        targetSdk 35
+        versionCode 1
+        versionName '1.0.0'
+    }
+
+    sourceSets.main.assets.srcDir(textureOut)
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            signingConfig signingConfigs.debug   // 侧载安装用；上架需要换成自己的签名
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    lint {
+        abortOnError false
+    }
+}
