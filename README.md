@@ -6,7 +6,9 @@
 
 ## 下载
 
-[Releases](https://github.com/Zaiyiiiiii/The-Wolf-Among-Us-Wallpaper/releases) 页面提供 `WolfAmongUsTitleLive.exe`（64 位 Windows）、`WolfAmongUsWallpaper.apk`（Android 7.0 及以上的动态壁纸）和 [`WolfAmongUs_TitleBackground.html`](https://github.com/Zaiyiiiiii/The-Wolf-Among-Us-Wallpaper/releases/latest/download/WolfAmongUs_TitleBackground.html)（网页版，离线双击即可打开）。
+[Releases](https://github.com/Zaiyiiiiii/The-Wolf-Among-Us-Wallpaper/releases) 页面提供 `WolfAmongUsTitleLive.exe`（64 位 Windows）和 `WolfAmongUsWallpaper.apk`（Android 7.0 及以上的动态壁纸）。
+
+网页版预览：[WolfAmongUs_TitleBackground.html](https://github.com/Zaiyiiiiii/The-Wolf-Among-Us-Wallpaper/releases/latest/download/WolfAmongUs_TitleBackground.html)
 
 ## 使用
 
