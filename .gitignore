@@ -1,0 +1,25 @@
+# 游戏贴图及由其生成的文件：版权属于游戏版权方，不进入仓库
+assets/*
+!assets/.gitkeep
+*.d3dtx
+*.ttarch2
+*.bc1
+*.bc3
+wall.png
+spot.png
+
+# 本机配置
+.env
+tools/.cache/
+tools/.cache/
+
+# 构建产物
+native/build/
+*.obj
+*.res
+*.cso
+*.exe
+web/dist/
+__pycache__/
+tools/ttk_extract/bin/
+tools/ttk_extract/obj/

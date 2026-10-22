@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#330a11">
+<title>Wolf Among Us 标题背景</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #330a11; overflow: hidden; }
+  canvas { position: fixed; inset: 0; width: 100%; height: 100%; display: block; }
+  body.idle { cursor: none; }
+  #err { position: fixed; inset: 0; display: none; align-items: center; justify-content: center;
+         color: #e8b0b8; font: 16px/1.6 system-ui, sans-serif; text-align: center; padding: 0 24px; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div id="err">当前浏览器不支持 WebGL2，无法显示动画。</div>
+<script>
+// 界面文字多语言：URL 参数 ?lang=zh|en|ja 优先，否则跟随浏览器语言（中文 / 日语，其余用英文）
+(() => {
+  const TEXT = {
+    zh: { html: 'zh-CN', title: 'Wolf Among Us 标题背景', err: '当前浏览器不支持 WebGL2，无法显示动画。' },
+    en: { html: 'en', title: 'Wolf Among Us Title Background', err: 'This browser does not support WebGL2, so the animation cannot be shown.' },
+    ja: { html: 'ja', title: 'Wolf Among Us タイトル背景', err: 'このブラウザは WebGL2 に対応していないため、アニメーションを表示できません。' },
+  };
+  const q = new URLSearchParams(location.search).get('lang');
+  const nav = (navigator.language || 'en').toLowerCase();
+  const key = TEXT[q] ? q : nav.startsWith('zh') ? 'zh' : nav.startsWith('ja') ? 'ja' : 'en';
+  const t = TEXT[key];
+  document.documentElement.lang = t.html;
+  document.title = t.title;
+  document.getElementById('err').textContent = t.err;
+})();
+/*
+ * 《The Wolf Among Us》重制版 标题界面背景（ui_menu_background_pause.scene）的复现。
+ * 数据来源：
+ *   场景/材质/网格/动画关键帧：Fables_pc_Boot_ar_* 归档中的原始数据；
+ *   像素公式、混合模式、UV 变换顺序：游戏着色器与 RenderDoc 抓帧中的实际常量；
+ *   曲线插值：游戏可执行文件中 KeyframedValue<T> 求值函数（Catmull-Rom / smoothstep / 线性 / 球面插值）。
+ * 每一层按引擎绘制顺序在渲染目标(8 位 UNORM)上混合，层间取整，与引擎一致。
+ */
+const WALL = "data:image/png;base64,{{WALL}}";
+const SPOT = "data:image/png;base64,{{SPOT}}";
+
+// ---- 动画：关键帧求值（逐字对应引擎代码；模式 1=Stepped 2=Knot 3=Smooth 4=Flat）----
+const STEPPED = 1, KNOT = 2, SMOOTH = 3, FLAT = 4;
+function evalKfv(S, t) {
+  const n = S.length;
+  if (t < S[0][0] || n === 1) return S[0][2].slice();
+  if (!(t < S[n - 1][0])) return S[n - 1][2].slice();
+  let lo = 0, hi = n - 1;
+  while (hi - lo > 1) { const mid = (lo + hi) >> 1; if (t < S[mid][0]) hi = mid; else lo = mid; }
+  const [t0, m0, b] = S[lo], [t1, m1, c] = S[hi];
+  let x = (t - t0) / (t1 - t0);
+  const out = new Array(b.length);
+  if ((m1 === STEPPED || m1 === KNOT) && m0 === KNOT) { for (let i = 0; i < b.length; i++) out[i] = (c[i] - b[i]) * x + b[i]; return out; }
+  if (m0 === STEPPED) return b.slice();
+  x = Math.min(Math.max(x, 0), 1);
+  for (let i = 0; i < b.length; i++) {
+    const a = m0 === FLAT ? c[i] : m0 === SMOOTH ? (lo - 1 >= 0 ? S[lo - 1][2][i] : b[i]) : 2 * b[i] - c[i];
+    const d = m1 === FLAT ? b[i] : m1 === SMOOTH ? (hi + 1 < n ? S[hi + 1][2][i] : c[i]) : 2 * c[i] - b[i];
+    const c3 = 1.5 * b[i] - 0.5 * a - 1.5 * c[i] + 0.5 * d;
+    const c2 = a - 2.5 * b[i] + 2 * c[i] - 0.5 * d;
+    const c1 = -0.5 * a + 0.5 * c[i];
+    out[i] = ((c3 * x + c2) * x + c1) * x + b[i];
+  }
+  return out;
+}
+
+// ui_menu_background_color.chore（长度 20 秒）：各图层的 Render Diffuse Color
+const COLOR_LEN = 20;
+const COL_FAR  = [[0, FLAT, [0.2, 0.051, 0.098]], [5, FLAT, [0.2, 0.078, 0.057]], [15, FLAT, [0.2, 0.051, 0.188]], [20, FLAT, [0.2, 0.051, 0.098]]];
+const COL_NEAR = [[0, FLAT, [0.2, 0.051, 0.2]], [5, FLAT, [0.2, 0.051, 0.125]], [15, FLAT, [0.11, 0.051, 0.2]], [20, FLAT, [0.2, 0.051, 0.2]]];
+const COL_FILL = [[0, SMOOTH, [0.102, 0.024, 0.051]], [5, SMOOTH, [0.102, 0.035, 0.024]], [15, SMOOTH, [0.102, 0.024, 0.098]], [20, SMOOTH, [0.102, 0.024, 0.051]]];
+const COL_GRAD = [[0, SMOOTH, [0.024, 0, 0.149]], [5, SMOOTH, [0.098, 0, 0.149]], [15, SMOOTH, [0, 0.067, 0.149]], [19.980469, SMOOTH, [0.024, 0, 0.149]]];
+// 其它三个动画（长度，值）：旋转 300 秒转 360°；近景/远景 UV 位移 0→2，分别 90 秒 / 120 秒
+const ROT_LEN = 300, NEAR_LEN = 90, FAR_LEN = 120;
+
+// 引擎的待机动画由 Walk Animator 播放：Idle Scale Range = 0.85~1.15，Idle Force Start = -1。
+// 四个动画各自取一个速度系数与起始位置（每次启动随机）。URL 参数: ?seed=整数 固定随机；?speed=倍率；?t=秒 冻结。
+const qs = new URLSearchParams(location.search);
+function rng(seed) { let s = seed >>> 0; return () => { s = (s + 0x6D2B79F5) >>> 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; }; }
+const R = qs.has('seed') ? rng(parseInt(qs.get('seed'), 10) || 1) : Math.random.bind(Math);
+const clk = (len) => ({ len, speed: 0.85 + 0.30 * R(), phase: len * R() });
+const CLK = { rot: clk(ROT_LEN), near: clk(NEAR_LEN), far: clk(FAR_LEN), col: clk(COLOR_LEN) };
+const GSPEED = parseFloat(qs.get('speed') || '1');
+const FREEZE = qs.has('t') ? parseFloat(qs.get('t')) : null;
+const dbg = qs.has('ang') ? { ang: +qs.get('ang'), far: +qs.get('far'), near: +qs.get('near'),
+  cfill: qs.get('cfill').split(',').map(Number), cfar: qs.get('cfar').split(',').map(Number),
+  cnear: qs.get('cnear').split(',').map(Number), cgrad: qs.get('cgrad').split(',').map(Number) } : null;
+const tc = (c, el) => (((c.phase + c.speed * el * GSPEED) % c.len) + c.len) % c.len;
+
+const VS = `#version 300 es
+in vec2 p; void main(){ gl_Position = vec4(p, 0.0, 1.0); }`;
+
+const FS = `#version 300 es
+precision highp float;
+uniform vec2 uRes; uniform vec2 uExt;           // uExt: 屏幕覆盖的世界范围的一半 (x, y)
+uniform float uAng; uniform float uFarT; uniform float uNearT;
+uniform vec3 uCFill; uniform vec3 uCFar; uniform vec3 uCNear; uniform vec3 uCGrad;
+uniform sampler2D uWall; uniform sampler2D uSpot;
+out vec4 o;
+vec3 q8(vec3 x) { return floor(clamp(x, 0.0, 1.0) * 255.0 + 0.5) / 255.0; }
+bool inside(vec2 v) { return v.x >= 0.0 && v.x <= 1.0 && v.y >= 0.0 && v.y <= 1.0; }
+
+// 墙纸层：网格 5.12×5.12，整体缩放 4.5，绕原点旋转；UV = 缩放*(u,v) + 位移（位移最后加）
+vec3 wallLayer(vec3 dst, vec2 w, float cs, float sn, float tile, float tr, float alphaK, vec3 col) {
+  vec2 loc = vec2(cs * w.x + sn * w.y, -sn * w.x + cs * w.y) / 4.5;
+  vec2 v = (loc + 2.56) / 5.12;
+  if (!inside(v)) return dst;
+  vec2 uv = vec2(v.x, 1.0 - v.y) * tile + tr;
+  vec4 t = texture(uWall, uv);
+  float a = clamp(t.a, 0.0, 1.0) * alphaK;
+  return q8(dst * (1.0 - a) + t.rgb * col * a);      // 混合: SrcAlpha, InvSrcAlpha
+}
+
+void main() {
+  vec2 ndc = gl_FragCoord.xy / uRes * 2.0 - 1.0;
+  vec2 w = ndc * uExt;                               // 世界坐标 (z=0)
+  float cs = cos(uAng), sn = sin(uAng);
+  vec3 c = vec3(0.0);
+
+  // 层 0 fill：19.2×10.8，缩放 2，纯色
+  if (inside((w / 2.0 - vec2(-9.6, -5.4)) / vec2(19.2, 10.8))) c = q8(uCFill);
+  // 层 1 back：黑色，常量透明度 0.5，UV 缩放 6
+  c = wallLayer(c, w, cs, sn, 6.0, 0.0, 0.5, vec3(0.0));
+  // 层 2 far：UV 缩放 3，位移随动画
+  c = wallLayer(c, w, cs, sn, 3.0, uFarT, 1.0, uCFar);
+  // 层 3 near：UV 缩放 2
+  c = wallLayer(c, w, cs, sn, 2.0, uNearT, 1.0, uCNear);
+
+  // 层 4 spotlight：20.48 方形，缩放 2，位于 (-0.14144, -0.0524558)，混合 DstCol×Zero；
+  //   网格为中心扇形，UV = (1-|dx|, 1-|dy|)，再经 0.991285/0.0043573 的 UV 变换
+  vec2 sv = ((w - vec2(-0.14144018, -0.052455753)) / 2.0 + 10.24) / 20.48;
+  if (inside(sv)) {
+    vec2 d = (sv - 0.5) * 2.0;
+    vec2 suv = (1.0 - abs(d)) * 0.991285 + 0.0043573;
+    c = q8(c * texture(uSpot, suv).rgb);
+  }
+
+  // 层 5 gradient：20×20 网格，缩放 (2,1,2)，位置 y=-0.5；顶点 alpha 自下而上 1→0；混合 SrcAlpha, One
+  vec2 gv = (vec2(w.x / 2.0, w.y + 0.5) + 10.0) / 20.0;
+  if (inside(gv)) c = q8(c + uCGrad * clamp(1.0 - gv.y, 0.0, 1.0));
+
+  o = vec4(c, 1.0);
+}`;
+
+const cv = document.getElementById('c');
+const gl = cv.getContext('webgl2', { antialias: false, alpha: false, preserveDrawingBuffer: !!qs.has('keep'), powerPreference: 'high-performance' });
+if (!gl) { document.getElementById('err').style.display = 'flex'; }
+else {
+  const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o);
+    if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) throw new Error(gl.getShaderInfoLog(o)); return o; };
+  const pr = gl.createProgram();
+  gl.attachShader(pr, sh(gl.VERTEX_SHADER, VS)); gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS));
+  gl.linkProgram(pr); gl.useProgram(pr);
+  gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+  const loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+
+  let ready = 0;
+  const tex = (unit, src, wrap) => {
+    const t = gl.createTexture(), im = new Image();
+    gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array([0, 0, 0, 255]));
+    im.onload = () => {
+      gl.activeTexture(gl.TEXTURE0 + unit); gl.bindTexture(gl.TEXTURE_2D, t);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      gl.pixelStorei(gl.UNPACK_COLORSPACE_CONVERSION_WEBGL, gl.NONE);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
+      // 引擎采样器：mip 偏移 -7（始终取最清晰层），双线性；墙纸 Wrap，聚光 ClampEdge
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, wrap); gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, wrap);
+      ready++;
+    };
+    im.src = src;
+  };
+  tex(0, WALL, gl.REPEAT); tex(1, SPOT, gl.CLAMP_TO_EDGE);
+  gl.uniform1i(gl.getUniformLocation(pr, 'uWall'), 0); gl.uniform1i(gl.getUniformLocation(pr, 'uSpot'), 1);
+  const U = n => gl.getUniformLocation(pr, n);
+  const uRes = U('uRes'), uExt = U('uExt'), uAng = U('uAng'), uFarT = U('uFarT'), uNearT = U('uNearT');
+  const uCFill = U('uCFill'), uCFar = U('uCFar'), uCNear = U('uCNear'), uCGrad = U('uCGrad');
+
+  const HALF_H = 41 / 7.5957537;                      // 引擎投影：垂直方向固定为 ±5.39776 世界单位
+  const maxPix = 3840 * 2160;
+  function resize() {
+    const dpr = window.devicePixelRatio || 1; let w = Math.round(innerWidth * dpr), h = Math.round(innerHeight * dpr);
+    const k = Math.min(1, Math.sqrt(maxPix / (w * h)));
+    cv.width = Math.max(1, Math.round(w * k)); cv.height = Math.max(1, Math.round(h * k));
+    gl.viewport(0, 0, cv.width, cv.height);
+  }
+  addEventListener('resize', resize); resize();
+
+  const start = performance.now();
+  function frame(now) {
+    const el = FREEZE !== null ? FREEZE : (now - start) / 1000;
+    let ang, farT, nearT, cF, cFar, cNear, cG;
+    if (dbg) { ang = dbg.ang; farT = dbg.far; nearT = dbg.near; cF = dbg.cfill; cFar = dbg.cfar; cNear = dbg.cnear; cG = dbg.cgrad; }
+    else {
+      ang = 2 * Math.PI * tc(CLK.rot, el) / ROT_LEN;                 // 四元数关键帧 0°→90°→180°→270°→360°，球面插值 => 角度线性
+      farT = 2 * tc(CLK.far, el) / FAR_LEN; nearT = 2 * tc(CLK.near, el) / NEAR_LEN;
+      const tcol = tc(CLK.col, el);
+      cF = evalKfv(COL_FILL, tcol); cFar = evalKfv(COL_FAR, tcol); cNear = evalKfv(COL_NEAR, tcol); cG = evalKfv(COL_GRAD, tcol);
+    }
+    const aspect = cv.width / cv.height;
+    const ext = aspect >= 1 ? [HALF_H * aspect, HALF_H] : [HALF_H, HALF_H / aspect];   // 竖屏: 短边对应引擎的垂直范围
+    gl.uniform2f(uRes, cv.width, cv.height); gl.uniform2f(uExt, ext[0], ext[1]);
+    gl.uniform1f(uAng, ang); gl.uniform1f(uFarT, farT); gl.uniform1f(uNearT, nearT);
+    gl.uniform3fv(uCFill, cF); gl.uniform3fv(uCFar, cFar); gl.uniform3fv(uCNear, cNear); gl.uniform3fv(uCGrad, cG);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    if (FREEZE !== null || dbg) { if (ready >= 2) { document.title = 'READY'; } }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  const fs = () => { if (document.fullscreenElement) document.exitFullscreen(); else document.documentElement.requestFullscreen?.(); };
+  addEventListener('dblclick', fs);
+  addEventListener('keydown', e => { if (e.key === 'f' || e.key === 'F') fs(); });
+  let idle; const wake = () => { document.body.classList.remove('idle'); clearTimeout(idle); idle = setTimeout(() => document.body.classList.add('idle'), 2000); };
+  addEventListener('mousemove', wake); wake();
+}
+</script>
+</body>
+</html>

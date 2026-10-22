@@ -1,0 +1,33 @@
+#include <winuser.h>
+#define IDI_ICON1 1
+#define IDR_WALL  101
+#define IDR_SPOT  102
+#define IDR_PS    103
+#define IDR_VS    104
+
+// 只写文件名：build.ps1 用 rc /i 指定查找目录（WOLF_ASSETS_DIR 与 WOLF_BUILD_DIR，见 .env.example）。贴图与图标需要自行准备，见 README.md
+IDI_ICON1 ICON    "app.ico"
+IDR_WALL  RCDATA  "wall.bc3"
+IDR_SPOT  RCDATA  "spot.bc1"
+IDR_PS    RCDATA  "ps.cso"
+IDR_VS    RCDATA  "vs.cso"
+1 RT_MANIFEST "app.manifest"
+
+1 VERSIONINFO
+FILEVERSION 1,0,0,0
+PRODUCTVERSION 1,0,0,0
+BEGIN
+  BLOCK "StringFileInfo"
+  BEGIN
+    BLOCK "080404B0"
+    BEGIN
+      VALUE "FileDescription", "Wolf Among Us 标题背景（动态）"
+      VALUE "ProductName", "WolfAmongUsTitleLive"
+      VALUE "FileVersion", "1.0.0.0"
+    END
+  END
+  BLOCK "VarFileInfo"
+  BEGIN
+    VALUE "Translation", 0x0804, 1200
+  END
+END
