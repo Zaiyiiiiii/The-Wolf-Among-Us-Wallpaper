@@ -121,8 +121,9 @@ void main() {
   float cs = cos(uAng), sn = sin(uAng);
   vec3 c = vec3(0.0);
 
-  // 层 0 fill：19.2×10.8，缩放 2，纯色
-  if (inside((w / 2.0 - vec2(-9.6, -5.4)) / vec2(19.2, 10.8))) c = q8(uCFill);
+  // 层 0 fill：纯色。游戏里它是 19.2×10.8（缩放 2）的矩形，正好盖住 16:9 的屏幕；
+  // 竖屏 / 超宽屏会超出矩形，这里让它铺满整个屏幕（16:9 下结果相同）
+  c = q8(uCFill);
   // 层 1 back：黑色，常量透明度 0.5，UV 缩放 6
   c = wallLayer(c, w, cs, sn, 6.0, 0.0, 0.5, vec3(0.0));
   // 层 2 far：UV 缩放 3，位移随动画
@@ -140,8 +141,9 @@ void main() {
   }
 
   // 层 5 gradient：20×20 网格，缩放 (2,1,2)，位置 y=-0.5；顶点 alpha 自下而上 1→0；混合 SrcAlpha, One
+  // 游戏里网格的下缘和左右缘在 16:9 屏幕之外；竖屏 / 超宽屏放大后会露出来，所以向下和左右延续（alpha 保持 1），16:9 下结果相同
   vec2 gv = (vec2(w.x / 2.0, w.y + 0.5) + 10.0) / 20.0;
-  if (inside(gv)) c = q8(c + uCGrad * clamp(1.0 - gv.y, 0.0, 1.0));
+  if (gv.y <= 1.0) c = q8(c + uCGrad * clamp(1.0 - gv.y, 0.0, 1.0));
 
   o = vec4(c, 1.0);
 }`;
@@ -206,6 +208,10 @@ else {
     }
     const aspect = cv.width / cv.height;
     const ext = aspect >= 1 ? [HALF_H * aspect, HALF_H] : [HALF_H, HALF_H / aspect];   // 竖屏: 短边对应引擎的垂直范围
+    // 花卉层是 23.04 见方的网格并绕原点旋转，只有半径 11.52 的圆内一定被覆盖。16:9 的半对角线是 11.0，游戏里不会露边；
+    // 竖屏 / 超宽屏更长，四角会露出底色，所以超出时整体放大（缩小可见的世界范围）直到铺满。16:9 不受影响。
+    const diag = Math.hypot(ext[0], ext[1]);
+    if (diag > 11.4) { ext[0] *= 11.4 / diag; ext[1] *= 11.4 / diag; }
     gl.uniform2f(uRes, cv.width, cv.height); gl.uniform2f(uExt, ext[0], ext[1]);
     gl.uniform1f(uAng, ang); gl.uniform1f(uFarT, farT); gl.uniform1f(uNearT, nearT);
     gl.uniform3fv(uCFill, cF); gl.uniform3fv(uCFar, cFar); gl.uniform3fv(uCNear, cNear); gl.uniform3fv(uCGrad, cG);

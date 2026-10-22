@@ -6,7 +6,7 @@ A live recreation of the flower-pattern background from the title screen and mai
 
 ## Download
 
-`WolfAmongUsTitleLive.exe` (64-bit Windows) is on the [Releases](https://github.com/Zaiyiiiiii/The-Wolf-Among-Us-Wallpaper/releases) page, along with `WolfAmongUsWallpaper.apk` (live wallpaper for Android 7.0 and later).
+`WolfAmongUsTitleLive.exe` (64-bit Windows) is on the [Releases](https://github.com/Zaiyiiiiii/The-Wolf-Among-Us-Wallpaper/releases) page, `WolfAmongUsWallpaper.apk` (live wallpaper for Android 7.0 and later) and `WolfAmongUs_TitleBackground.html` (web version; open it offline by double-clicking).
 
 ## Usage
 
