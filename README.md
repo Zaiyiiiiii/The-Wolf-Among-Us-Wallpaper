@@ -29,14 +29,11 @@
 |---|---|
 | `WOLF_GAME_DIR` | 已安装的游戏目录（重制版或重制版试玩版，含 `Archive/`） |
 | `WOLF_TTK_PROJECT` | [TelltaleToolKit](https://github.com/iMrShadow/TelltaleToolKit) 源码中 `TelltaleToolKit.csproj` 的路径 |
-| `WOLF_STEAM_USERNAME` | 没有安装游戏时，用该 Steam 账号通过 [DepotDownloader](https://github.com/SteamRE/DepotDownloader) 下载所需归档；密码在终端输入，不写进 `.env` |
 | `WOLF_ASSETS_DIR`、`WOLF_BUILD_DIR`、`WOLF_EXE_NAME`、`WOLF_VS_PATH` | 贴图与图标目录、输出目录、exe 名、Visual Studio 位置（留空自动查找） |
 | `WOLF_ANDROID_SDK`、`WOLF_JAVA_HOME` | 构建 Android 版：SDK 目录（需要 android-35 平台）、JDK 17 及以上（留空用 `JAVA_HOME`） |
 | `WOLF_WEB_WALL_PNG`、`WOLF_WEB_SPOT_PNG`、`WOLF_WEB_OUT` | 网页版的输入与输出 |
 | `WOLF_WALLPAPER_D3DTX`、`WOLF_SPOTLIGHT_D3DTX` | 手动提取贴图时的输入 |
 | `WOLF_CAPTURE_DIR`、`WOLF_MENU_JSON`、`WOLF_DENSE_ROWS` | 分析脚本的输入，一般用不到 |
-
-匿名账号无法下载这个 demo（AppID 5280090）；需要普通 Steam 账号（免费，把 demo 加进库即可）。
 
 ### 2. 准备贴图
 

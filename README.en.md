@@ -29,14 +29,11 @@ Copy `.env.example` to `.env`. All paths and tunable values live there; relative
 |---|---|
 | `WOLF_GAME_DIR` | Directory of an installed game (Remastered or the Remastered Demo, containing `Archive/`) |
 | `WOLF_TTK_PROJECT` | Path to `TelltaleToolKit.csproj` in a [TelltaleToolKit](https://github.com/iMrShadow/TelltaleToolKit) checkout |
-| `WOLF_STEAM_USERNAME` | Without an installed game, the Steam account used to download the needed archive with [DepotDownloader](https://github.com/SteamRE/DepotDownloader); the password is typed in the terminal, never stored in `.env` |
 | `WOLF_ASSETS_DIR`, `WOLF_BUILD_DIR`, `WOLF_EXE_NAME`, `WOLF_VS_PATH` | Textures-and-icon directory, output directory, exe name, Visual Studio location (leave empty to auto-detect) |
 | `WOLF_ANDROID_SDK`, `WOLF_JAVA_HOME` | Android build: SDK directory (needs the android-35 platform) and JDK 17 or later (leave empty to use `JAVA_HOME`) |
 | `WOLF_WEB_WALL_PNG`, `WOLF_WEB_SPOT_PNG`, `WOLF_WEB_OUT` | Inputs and output of the web version |
 | `WOLF_WALLPAPER_D3DTX`, `WOLF_SPOTLIGHT_D3DTX` | Inputs when extracting the textures by hand |
 | `WOLF_CAPTURE_DIR`, `WOLF_MENU_JSON`, `WOLF_DENSE_ROWS` | Inputs of the analysis scripts; usually not needed |
-
-Anonymous accounts cannot download this demo (AppID 5280090); a regular Steam account is required (it is free; add the demo to your library).
 
 ### 2. Prepare the textures
 
