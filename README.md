@@ -1,6 +1,6 @@
 **中文** | [English](README.en.md)
 
-# wolves.desktop
+# Wolf among us wallpaper
 
 《The Wolf Among Us》（重制版）标题界面 / 主菜单花卉背景的动态复现：原生 Win32 + Direct3D11 程序（全屏 / 窗口 / 桌面壁纸三种显示模式）和 WebGL2 网页版。
 
