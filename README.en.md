@@ -1,6 +1,6 @@
 **English** | [中文](README.md)
 
-# wolves.desktop
+# Wolf among us wallpaper
 
 A live recreation of the flower-pattern background from the title screen and main menu of *The Wolf Among Us* (Remastered): a native Win32 + Direct3D 11 program (fullscreen, windowed and desktop-wallpaper display modes) and a WebGL2 web version.
 
